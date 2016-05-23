@@ -61,6 +61,7 @@ function assemble{El<:Union{Tri3,Tri6,Quad4}}(problem::Problem{Elasticity}, elem
     BNL = zeros(4, dim*nnodes)
     Kt = zeros(dim*nnodes, dim*nnodes)
     f = zeros(dim*nnodes)
+    # material_type = "mooney_rivlin"
 
     for (w, xi) in get_integration_points(element)
 
@@ -99,9 +100,15 @@ function assemble{El<:Union{Tri3,Tri6,Quad4}}(problem::Problem{Elasticity}, elem
             error("unknown plane formulation: $(props.formulation)")
         end
 
-        # calculate stress
-        S = D*[strain[1,1]; strain[2,2]; 2*strain[1,2]]
+        strain_voight = [strain[1,1]; strain[2,2]; 2*strain[1,2]]
 
+        # calculate stress
+        if has_key(element, "material model")
+            S, ddSdde = integrate_stress(element["material model"], S, D, strain)
+        else
+            S = D*strain
+            ddSdde = D
+        end
         # add contributions: material and geometric stiffness + internal forces
         fill!(BL, 0.0)
         for i=1:size(dN, 2)
