@@ -82,6 +82,7 @@ function assemble{El<:Union{Tri3,Tri6,Quad4}}(problem::Problem{Elasticity}, elem
             strain += 1/2*gradu'*gradu
         end
 
+
         # constitutive equations; material model (isotropic linear material here)
         # get_material(problem, element, ...)
         E = element("youngs modulus", xi, time)
