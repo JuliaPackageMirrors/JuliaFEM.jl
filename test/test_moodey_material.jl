@@ -6,7 +6,6 @@ type Mooney_Rivlin
     C2::Float64
 end
 
-
 body = Problem(Elasticity, "block", 2)
 body.properties.formulation = :plane_stress
 

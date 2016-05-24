@@ -104,10 +104,10 @@ function assemble{El<:Union{Tri3,Tri6,Quad4}}(problem::Problem{Elasticity}, elem
         strain_voight = [strain[1,1]; strain[2,2]; 2*strain[1,2]]
 
         # calculate stress
-        if has_key(element, "material model")
-            S, ddSdde = integrate_stress(element["material model"], S, D, strain)
+        if haskey(element, "material model")
+            S, ddSdde = integrate_stress(element["material model"], S, D, strain_voight, F)
         else
-            S = D*strain
+            S = D*strain_voight
             ddSdde = D
         end
         # add contributions: material and geometric stiffness + internal forces
@@ -133,7 +133,7 @@ function assemble{El<:Union{Tri3,Tri6,Quad4}}(problem::Problem{Elasticity}, elem
         S2[1,2] = S2[2,1] = S[3]
         S2[3:4,3:4] = S2[1:2,1:2]
 
-        Kt += w*BL'*D*BL*detJ # material stiffness
+        Kt += w*BL'*ddSdde*BL*detJ # material stiffness
         if props.finite_strain # add geometric stiffness
             Kt += w*BNL'*S2*BNL*detJ # geometric stiffness
         end
